@@ -9,6 +9,7 @@ import com.example.markiiimark.ingredisearch.R
 import com.example.markiiimark.ingredisearch.api.RecipeRepository
 import com.example.markiiimark.ingredisearch.model.Recipe
 import com.example.markiiimark.ingredisearch.ui.adapter.RecipeAdapter
+import com.example.markiiimark.ingredisearch.ui.presenter.SearchResultsPresenter
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.view_error.*
 import kotlinx.android.synthetic.main.view_loading.*
@@ -22,8 +23,9 @@ fun Context.searchResultsIntent(query: String) : Intent {
 
 private const val EXTRA_QUERY = "EXTRA_QUERY"
 
-class SearchResultsActivity : ChildActivity() {
-    private val repository: RecipeRepository by lazy {  RecipeRepository.getRepository(this@SearchResultsActivity)  }
+class SearchResultsActivity : ChildActivity(), SearchResultsPresenter.View {
+
+    private val presenter: SearchResultsPresenter by lazy {  SearchResultsPresenter(RecipeRepository.getRepository(this))  }
 
     private val query by lazy {  intent.getStringExtra(EXTRA_QUERY)  }
 
@@ -32,43 +34,30 @@ class SearchResultsActivity : ChildActivity() {
         setContentView(R.layout.activity_list)
 
         supportActionBar?.subtitle = query
-        search(query)
+        presenter.attachView(this)
 
-        retry
+        presenter.search(query)
     }
 
-    fun retryButtonClicked(v: View) = search(query)
+    fun retryButtonClicked(v: View) = presenter.search(query)
 
-    private fun search(query: String) {
-        showLoadingView()
-        repository.getRecipes(query, object : RecipeRepository.RepositoryCallback<List<Recipe>> {
-            override fun onSuccess(recipes: List<Recipe>?) {
-                if (recipes != null && recipes.isNotEmpty()) {
-                    showRecipes(recipes)
-                } else {
-                    showEmptyRecipes()
-                }
-            }
-
-            override fun onError() {
-                showErrorView()
-            }
-        })
-    }
-
-    private fun showEmptyRecipes() {
+    override fun showEmptyRecipes() {
         loadingContainer.visibility = View.GONE
         errorContainer.visibility = View.GONE
         list.visibility = View.VISIBLE
         noresultsContainer.visibility = View.VISIBLE
     }
 
-    private fun showRecipes(recipes: List<Recipe>) {
+    override fun showRecipes(recipes: List<Recipe>) {
         loadingContainer.visibility = View.GONE
         errorContainer.visibility = View.GONE
         list.visibility = View.VISIBLE
         noresultsContainer.visibility = View.GONE
 
+        setupRecipeList(recipes)
+    }
+
+    private fun setupRecipeList(recipes: List<Recipe>) {
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = RecipeAdapter(recipes, object : RecipeAdapter.Listener {
             override fun onClickItem(item: Recipe) {
@@ -76,30 +65,30 @@ class SearchResultsActivity : ChildActivity() {
             }
 
             override fun onAddFavorite(item: Recipe) {
-                item.isFavorited = true
-                repository.addFavorite(item)
-                list.adapter.notifyItemChanged(recipes.indexOf(item))
+                presenter.addFavorite(item)
             }
 
             override fun onRemoveFavorite(item: Recipe) {
-                repository.removeFavorite(item)
-                item.isFavorited = false
-                list.adapter.notifyItemChanged(recipes.indexOf(item))
+                presenter.removeFavorite(item)
             }
         })
     }
 
-    private fun showErrorView() {
+    override fun showLoading() {
+        loadingContainer.visibility = View.VISIBLE
+        errorContainer.visibility = View.GONE
+        list.visibility = View.GONE
+        noresultsContainer.visibility = View.GONE
+    }
+
+    override fun showError() {
         loadingContainer.visibility = View.GONE
         errorContainer.visibility = View.VISIBLE
         list.visibility = View.GONE
         noresultsContainer.visibility = View.GONE
     }
 
-    private fun showLoadingView() {
-        loadingContainer.visibility = View.VISIBLE
-        errorContainer.visibility = View.GONE
-        list.visibility = View.GONE
-        noresultsContainer.visibility = View.GONE
+    override fun refreshFavoritesStatus(recipeIndex: Int) {
+        list.adapter.notifyItemChanged(recipeIndex)
     }
 }
