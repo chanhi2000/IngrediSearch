@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+    defaultConfig {
+        applicationId "com.example.markiiimark.ingredisearch"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        vectorDrawables.useSupportLibrary = true
+
+        buildConfigField 'String', 'FOOD2FORK_API_KEY', keystoreProperties['FOOD2FORK_API_KEY']
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile("com.android.support.test.espresso:espresso-core:${versions.espresso}", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile "com.android.support:appcompat-v7:${versions.support}"
+    compile "com.android.support:design:${versions.support}"
+    compile "com.android.support.constraint:constraint-layout:${versions.constraintLayout}"
+
+    compile "com.squareup.retrofit2:retrofit:${versions.retrofit}"
+    compile "com.squareup.retrofit2:converter-gson:${versions.retrofit}"
+    compile "com.squareup.okhttp3:logging-interceptor:${versions.okhttp3}"
+
+    compile "com.github.bumptech.glide:glide:${versions.glide}"
+    annotationProcessor "com.github.bumptech.glide:compiler:${versions.glide}"
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    testCompile "junit:junit:${versions.junit}"
+}
+repositories {
+    mavenCentral()
+}
