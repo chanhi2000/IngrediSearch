@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.example.markiiimark.ingredisearch.R
 import com.example.markiiimark.ingredisearch.api.RecipeRepository
+import com.example.markiiimark.ingredisearch.api.RecipeRepositoryImpl
 import com.example.markiiimark.ingredisearch.model.Recipe
 import com.example.markiiimark.ingredisearch.ui.adapter.RecipeAdapter
 import kotlinx.android.synthetic.main.activity_list.*
@@ -15,7 +16,7 @@ import kotlinx.android.synthetic.main.view_noresults.*
 
 class FavoritesActivity : AppCompatActivity() {
 
-    private val repository: RecipeRepository by lazy {  RecipeRepository.getRepository(this)  }
+    private val repository by lazy {  RecipeRepositoryImpl.getRepository(this)  }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
@@ -23,7 +24,7 @@ class FavoritesActivity : AppCompatActivity() {
         listOf(loadingContainer, errorContainer, list, noresultsContainer).forEach { v -> v.visibility = View.GONE }
         noresultsTitle.text = getString(R.string.nofavorties)
 
-        val favoriteRecipes = repository.getFavoriteRecipies()
+        val favoriteRecipes = repository.getFavoriteRecipes()
         if (favoriteRecipes.isEmpty()) {
             showEmptyRecipes()
         } else {

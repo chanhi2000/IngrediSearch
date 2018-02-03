@@ -1,14 +1,16 @@
 package com.example.markiiimark.ingredisearch.ui.presenter
 
 import com.example.markiiimark.ingredisearch.api.RecipeRepository
+import com.example.markiiimark.ingredisearch.api.RepositoryCallback
 import com.example.markiiimark.ingredisearch.model.Recipe
 
 class SearchResultsPresenter(val repository: RecipeRepository,
-                             private var recipes:List<Recipe>? = null) : BasePresenter<SearchResultsPresenter.View>() {
+                             private var recipes:List<Recipe>? = null) :
+        BasePresenter<SearchResultsPresenter.View>() {
 
     fun search(query: String) {
         view?.showLoading()
-        repository.getRecipes(query, object: RecipeRepository.RepositoryCallback<List<Recipe>> {
+        repository.getRecipes(query, object: RepositoryCallback<List<Recipe>> {
             override fun onSuccess(recipes: List<Recipe>?) {
                 this@SearchResultsPresenter.recipes = recipes
                 if (recipes != null && recipes.isNotEmpty()) {
@@ -48,7 +50,4 @@ class SearchResultsPresenter(val repository: RecipeRepository,
         fun showError()
         fun refreshFavoritesStatus(recipeIndex: Int)
     }
-
-
-
 }

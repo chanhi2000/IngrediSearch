@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.example.markiiimark.ingredisearch.R
-import com.example.markiiimark.ingredisearch.api.RecipeRepository
+import com.example.markiiimark.ingredisearch.api.RecipeRepositoryImpl
 import com.example.markiiimark.ingredisearch.model.Recipe
 import com.example.markiiimark.ingredisearch.ui.adapter.RecipeAdapter
 import com.example.markiiimark.ingredisearch.ui.presenter.SearchResultsPresenter
@@ -25,7 +25,7 @@ private const val EXTRA_QUERY = "EXTRA_QUERY"
 
 class SearchResultsActivity : ChildActivity(), SearchResultsPresenter.View {
 
-    private val presenter: SearchResultsPresenter by lazy {  SearchResultsPresenter(RecipeRepository.getRepository(this))  }
+    private val presenter: SearchResultsPresenter by lazy {  SearchResultsPresenter(RecipeRepositoryImpl.getRepository(this))  }
 
     private val query by lazy {  intent.getStringExtra(EXTRA_QUERY)  }
 
